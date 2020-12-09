@@ -1,6 +1,9 @@
 package com.example.threadsapp
 
 import android.util.Log
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.locks.ReentrantLock
 
@@ -43,7 +46,11 @@ class Thread3(val count: Int) : Thread() {
 
     // this will block thread3
     private fun sendOverHttp(list : ArrayList<String>) {
-        val response = Api.retrofitService.postData(list)
+        val jsonObject = JSONObject()
+        jsonObject.put("deadlyImportantPhoneData", "list")
+        val jsonObjectString = jsonObject.toString()
+        val requestBody = jsonObjectString.toRequestBody("application/json".toMediaTypeOrNull())
+        val response = Api.retrofitService.postData(requestBody)
 
         if (response.isSuccessful){
             Log.d("success","success")
