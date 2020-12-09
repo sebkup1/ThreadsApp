@@ -27,25 +27,31 @@ class Thread3(val count: Int) : Thread() {
 
     override fun run() {
         while (true) {
-            try {
-                countDownLatch.await()
-                lock.lock()
-                Log.d(TAG, "thread 3: ${Thread.currentThread().id}, ${Thread.currentThread().name}")
-                val listToSend = list.clone()
-                list.clear()
-                countDownLatch = CountDownLatch(count)
-                lock.unlock()
-                // send over http
-                sendOverHttp(listToSend as ArrayList<String>)
+            if (!Thread.currentThread().isInterrupted) {
+                try {
+                    countDownLatch.await()
+                    lock.lock()
+                    Log.d(
+                        TAG,
+                        "thread 3: ${Thread.currentThread().id}, ${Thread.currentThread().name}"
+                    )
+                    val listToSend = list.clone()
+                    list.clear()
+                    countDownLatch = CountDownLatch(count)
+                    lock.unlock()
+                    // send over http
+                    sendOverHttp(listToSend as ArrayList<String>)
 
-            } catch (e: InterruptedException) {
-                Log.e(TAG, e.message.toString())
+                } catch (e: InterruptedException) {
+                    Log.e(TAG, e.message.toString())
+                }
+            } else {
+                break
             }
         }
     }
 
-    // this will block thread3
-    private fun sendOverHttp(list : ArrayList<String>) {
+    private fun sendOverHttp(list: ArrayList<String>) {
         val jsonObject = JSONObject()
         jsonObject.put("deadlyImportantPhoneData", list)
         val jsonObjectString = jsonObject.toString()
@@ -61,7 +67,6 @@ class Thread3(val count: Int) : Thread() {
                 }
             }
         }
-
     }
 
     companion object {
