@@ -1,6 +1,7 @@
 package com.example.threadsapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -23,17 +24,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d(TAG, "main: ${Thread.currentThread().id}, ${Thread.currentThread().name}")
         t1 = Thread {
             while (true) {
                 Thread.sleep((A * 1000).toLong())
-//                Log.d(TAG, "thread 1: ${Thread.currentThread().id}, ${Thread.currentThread().name}")
+                Log.d(TAG, "thread 1: ${Thread.currentThread().id}, ${Thread.currentThread().name}")
                 t3.addImportantPhoneData(VeryImportantPhoneDataProvider.location)
             }
         }
         t2 = Thread {
             while (true) {
                 Thread.sleep((B * 1000).toLong())
-//                Log.d(TAG, "thread 2: ${Thread.currentThread().id}, ${Thread.currentThread().name}")
+                Log.d(TAG, "thread 2: ${Thread.currentThread().id}, ${Thread.currentThread().name}")
                 t3.addImportantPhoneData(VeryImportantPhoneDataProvider.batteryUsage)
             }
         }
@@ -43,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         start_button.setOnClickListener {
             t1.start()
             t2.start()
-            t3.run()
+            t3.start()
         }
     }
 
