@@ -1,6 +1,10 @@
 package com.example.threadsapp
 
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
@@ -26,7 +30,6 @@ class Thread3(val count: Int) : Thread() {
             try {
                 countDownLatch.await()
                 lock.lock()
-//                Log.d(TAG, "list full:")
                 Log.d(TAG, "thread 3: ${Thread.currentThread().id}, ${Thread.currentThread().name}")
                 val listToSend = list.clone()
                 list.clear()
@@ -34,9 +37,6 @@ class Thread3(val count: Int) : Thread() {
                 lock.unlock()
                 // send over http
                 sendOverHttp(listToSend as ArrayList<String>)
-//                (listToSend as ArrayList<String>).forEach {
-//                    Log.d(TAG, it)
-//                }
 
             } catch (e: InterruptedException) {
                 Log.e(TAG, e.message.toString())
@@ -47,15 +47,19 @@ class Thread3(val count: Int) : Thread() {
     // this will block thread3
     private fun sendOverHttp(list : ArrayList<String>) {
         val jsonObject = JSONObject()
-        jsonObject.put("deadlyImportantPhoneData", "list")
+        jsonObject.put("deadlyImportantPhoneData", list)
         val jsonObjectString = jsonObject.toString()
         val requestBody = jsonObjectString.toRequestBody("application/json".toMediaTypeOrNull())
-        val response = Api.retrofitService.postData(requestBody)
 
-        if (response.isSuccessful){
-            Log.d("success","success")
-        } else {
-            Log.e("RETROFIT_ERROR", response.code().toString())
+        CoroutineScope(Dispatchers.IO).launch {
+            val response = Api.retrofitService.postData(requestBody)
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+                    Log.d(TAG, "success")
+                } else {
+                    Log.e(TAG, response.code().toString())
+                }
+            }
         }
 
     }

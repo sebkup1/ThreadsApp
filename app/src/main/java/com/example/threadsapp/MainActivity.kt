@@ -47,6 +47,12 @@ class MainActivity : AppCompatActivity() {
             t2.start()
             t3.start()
         }
+
+        stop_button.setOnClickListener {
+//            t1.interrupt()
+//            t2.interrupt()
+//            t3.interrupt()
+        }
     }
 
 }
